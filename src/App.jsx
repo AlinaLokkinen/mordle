@@ -7,7 +7,17 @@ import Keyboard from "./components/Keyboard";
 import Wordlist from "./components/wordlist";
 
 function App() {
+  
   const [grid, setGrid] = useState([
+    ["", "", "", "", ""],
+    ["", "", "", "", ""],
+    ["", "", "", "", ""],
+    ["", "", "", "", ""],
+    ["", "", "", "", ""],
+    ["", "", "", "", ""],
+  ]);
+
+  const [colorGrid, setColorGrid] = useState([
     ["", "", "", "", ""],
     ["", "", "", "", ""],
     ["", "", "", "", ""],
@@ -27,14 +37,14 @@ function App() {
 
   // console.log("randomword", randomWord);
   const [rowTry, setRowTry] = useState(0);
-  console.log("rowTry", rowTry);
   if (rowTry > 5) {
     console.log("Ei enempää tyhjiä rivejä!");
   }
 
+  console.log(randomWord);
+
   const handleKeyPress = (key) => {
     if (key === "enter") {
-      
       // jos jokainen solu sisältää kirjaimen, rivi on täysi
       const isNotEmpty = (value) => value !== "";
       if (currentRow.every(isNotEmpty)) {
@@ -42,11 +52,43 @@ function App() {
         if (Wordlist.includes(currentRow.join("").toLowerCase())) {
           // tarkista onko syötetty sana sama kuin randomWord
           if (currentRow.join("").toLowerCase() === randomWord.join("")) {
+            const isCorrect = ["", "", "", "", ""];
+
+            for (let i = 0; i < currentRow.length; i++) {
+              if (currentRow[i].toLowerCase() === randomWord[i].toLowerCase()) {
+                isCorrect[i] = "correct";
+              } else if (currentRow[i].toLowerCase() !== randomWord[i].toLowerCase() && randomWord.includes(currentRow[i].toLowerCase())) {
+                isCorrect[i] = "present";
+              } 
+            }
+
+            const newColorGrid = [...colorGrid];
+
+            newColorGrid[rowTry] = isCorrect;
+
+            setColorGrid(newColorGrid);
+            
             console.log("Voitto");
 
             // jos ei, siirrytään seuraavalle riville ja tallennetaan syötetty sana gridiin
           } else {
             console.log("ei voittoa, tarkista kirjainten paikat");
+
+            const isCorrect = ["", "", "", "", ""];
+
+            for (let i = 0; i < currentRow.length; i++) {
+              if (currentRow[i].toLowerCase() === randomWord[i].toLowerCase()) {
+                isCorrect[i] = "correct";
+              } else if (currentRow[i].toLowerCase() !== randomWord[i].toLowerCase() && randomWord.includes(currentRow[i].toLowerCase())) {
+                isCorrect[i] = "present";
+              } 
+            }
+
+            const newColorGrid = [...colorGrid];
+
+            newColorGrid[rowTry] = isCorrect;
+
+            setColorGrid(newColorGrid);
 
             const newGrid = [...grid];
 
@@ -89,7 +131,7 @@ function App() {
         const newRow = [...currentRow];
         newRow[nextIndex] = key.toUpperCase();
         setCurrentRow(newRow);
-      } 
+      }
     }
   };
 
@@ -101,13 +143,13 @@ function App() {
           return i === rowTry ? (
             <Row key={i}>
               {currentRow.map((cell, ci) => {
-                return <Cell key={ci} value={cell} />;
+                return <Cell key={ci} value={cell} color={colorGrid[i][ci]}/>;
               })}
             </Row>
           ) : (
             <Row key={i}>
               {row.map((cell, ci) => {
-                return <Cell key={ci} value={cell} />;
+                return <Cell key={ci} value={cell} color={colorGrid[i][ci]}/>;
               })}
             </Row>
           );
