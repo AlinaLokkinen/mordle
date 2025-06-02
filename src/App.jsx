@@ -26,6 +26,8 @@ function App() {
     ["", "", "", "", ""],
   ]);
 
+  console.log(colorGrid);
+
   const [randomWord, setRandomWord] = useState();
 
   useEffect(() => {
@@ -59,7 +61,9 @@ function App() {
                 isCorrect[i] = "correct";
               } else if (currentRow[i].toLowerCase() !== randomWord[i].toLowerCase() && randomWord.includes(currentRow[i].toLowerCase())) {
                 isCorrect[i] = "present";
-              } 
+              } else {
+                isCorrect[i] = "not in word";
+              }
             }
 
             const newColorGrid = [...colorGrid];
@@ -67,7 +71,7 @@ function App() {
             newColorGrid[rowTry] = isCorrect;
 
             setColorGrid(newColorGrid);
-            
+
             console.log("Voitto");
 
             // jos ei, siirrytään seuraavalle riville ja tallennetaan syötetty sana gridiin
@@ -81,7 +85,9 @@ function App() {
                 isCorrect[i] = "correct";
               } else if (currentRow[i].toLowerCase() !== randomWord[i].toLowerCase() && randomWord.includes(currentRow[i].toLowerCase())) {
                 isCorrect[i] = "present";
-              } 
+              } else {
+                isCorrect[i] = "not in word";
+              }
             }
 
             const newColorGrid = [...colorGrid];
@@ -103,6 +109,7 @@ function App() {
             setRowTry(rows);
             const emptyRow = ["", "", "", "", ""];
             setCurrentRow(emptyRow);
+
           }
         } else {
           // kerro käyttäjälle "Not in wordlist"
