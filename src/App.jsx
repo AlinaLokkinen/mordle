@@ -25,17 +25,26 @@ function App() {
 
   const [currentRow, setCurrentRow] = useState(["", "", "", "", ""]);
 
-  console.log("randomword", randomWord);
+  // console.log("randomword", randomWord);
   const [rowTry, setRowTry] = useState(0);
+  console.log("rowTry", rowTry);
+  if (rowTry > 5) {
+    console.log("Ei enempää tyhjiä rivejä!");
+  }
 
   const handleKeyPress = (key) => {
     if (key === "enter") {
+      
       // jos jokainen solu sisältää kirjaimen, rivi on täysi
       const isNotEmpty = (value) => value !== "";
       if (currentRow.every(isNotEmpty)) {
+        // tarkista onko syötetty sana sanalistassa
         if (Wordlist.includes(currentRow.join("").toLowerCase())) {
+          // tarkista onko syötetty sana sama kuin randomWord
           if (currentRow.join("").toLowerCase() === randomWord.join("")) {
             console.log("Voitto");
+
+            // jos ei, siirrytään seuraavalle riville ja tallennetaan syötetty sana gridiin
           } else {
             console.log("ei voittoa, tarkista kirjainten paikat");
 
@@ -45,17 +54,16 @@ function App() {
 
             setGrid(newGrid);
 
+            // siirrytään seuraavalle riville jos vielä tilaa
+
             let rows = rowTry;
             rows = rows + 1;
             setRowTry(rows);
-
             const emptyRow = ["", "", "", "", ""];
             setCurrentRow(emptyRow);
-            // lisää rowTry + 1
-            // tyhjennä currentRow
           }
         } else {
-          // kerro käyttäjälle "Not in worlist"
+          // kerro käyttäjälle "Not in wordlist"
           console.log("ei löydy");
         }
       }
@@ -75,11 +83,13 @@ function App() {
       setCurrentRow(newRow);
       return;
     } else {
-      const nextIndex = currentRow.findIndex((c) => c === "");
-      if (nextIndex === -1) return; // rivi täynnä
-      const newRow = [...currentRow];
-      newRow[nextIndex] = key.toUpperCase();
-      setCurrentRow(newRow);
+      if (rowTry <= 5) {
+        const nextIndex = currentRow.findIndex((c) => c === "");
+        if (nextIndex === -1) return; // rivi täynnä
+        const newRow = [...currentRow];
+        newRow[nextIndex] = key.toUpperCase();
+        setCurrentRow(newRow);
+      } 
     }
   };
 

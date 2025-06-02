@@ -2,7 +2,7 @@ import { useState } from "react";
 
 const Keyboard = ({onKeyPress}) => {
 
-    const [keyboard, setKeyboard] = useState([
+    const [keyboard,] = useState([
     ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
     ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
     ["enter", "z", "x", "c", "v", "b", "n", "m", "bs"],
