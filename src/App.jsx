@@ -7,7 +7,7 @@ import Keyboard from "./components/Keyboard";
 import Wordlist from "./components/wordlist";
 
 function App() {
-  const [grid, ] = useState([
+  const [grid, setGrid] = useState([
     ["", "", "", "", ""],
     ["", "", "", "", ""],
     ["", "", "", "", ""],
@@ -25,19 +25,43 @@ function App() {
 
   const [currentRow, setCurrentRow] = useState(["", "", "", "", ""]);
 
-  console.log(randomWord);
-
+  console.log("randomword", randomWord);
   const [rowTry, setRowTry] = useState(0);
 
   const handleKeyPress = (key) => {
     if (key === "enter") {
-      // tarkista että sana sanalistassa
-        // jos ei, anna virheilmoitus
-      // tarkista onko sana täsmälleen sana kuin randomWord
-        // jos ei, tarkista mitkä kirjaimet ovat oikein ja ovatko oikeilla vai väärillä paikoilla
+      // jos jokainen solu sisältää kirjaimen, rivi on täysi
+      const isNotEmpty = (value) => value !== "";
+      if (currentRow.every(isNotEmpty)) {
+        if (Wordlist.includes(currentRow.join("").toLowerCase())) {
+          if (currentRow.join("").toLowerCase() === randomWord.join("")) {
+            console.log("Voitto");
+          } else {
+            console.log("ei voittoa, tarkista kirjainten paikat");
+
+            const newGrid = [...grid];
+
+            newGrid[rowTry] = currentRow;
+
+            setGrid(newGrid);
+
+            let rows = rowTry;
+            rows = rows + 1;
+            setRowTry(rows);
+
+            const emptyRow = ["", "", "", "", ""];
+            setCurrentRow(emptyRow);
+            // lisää rowTry + 1
+            // tyhjennä currentRow
+          }
+        } else {
+          // kerro käyttäjälle "Not in worlist"
+          console.log("ei löydy");
+        }
+      }
+      // jos ei, tarkista mitkä kirjaimet ovat oikein ja ovatko oikeilla vai väärillä paikoilla
       // tyhjennä currentRow ja lisää rowTry +1
       return;
-    
     } else if (key === "bs") {
       const letterIndexes = [];
       for (let i = 0; i < currentRow.length; i++) {
@@ -50,16 +74,13 @@ function App() {
       newRow[lastIndex] = "";
       setCurrentRow(newRow);
       return;
-    
     } else {
       const nextIndex = currentRow.findIndex((c) => c === "");
       if (nextIndex === -1) return; // rivi täynnä
       const newRow = [...currentRow];
-      // console.log("newRow", newRow);
       newRow[nextIndex] = key.toUpperCase();
       setCurrentRow(newRow);
     }
-    
   };
 
   return (
@@ -67,17 +88,19 @@ function App() {
       {/* <h1 className="text-white pb-10 font-bold">Mordle - mock wordle</h1> */}
       <MordleWrapper>
         {grid.map((row, i) => {
-          return i === rowTry ?  
-          <Row key={i}>
-            {currentRow.map((cell, ci) => {
-              return <Cell key={ci} value={cell}/>
-            })}
-            </Row> :  
+          return i === rowTry ? (
             <Row key={i}>
-            {row.map((cell, ci) => {
-              return <Cell key={ci} value={cell}/>
-            })}
-          </Row>
+              {currentRow.map((cell, ci) => {
+                return <Cell key={ci} value={cell} />;
+              })}
+            </Row>
+          ) : (
+            <Row key={i}>
+              {row.map((cell, ci) => {
+                return <Cell key={ci} value={cell} />;
+              })}
+            </Row>
+          );
         })}
       </MordleWrapper>
       <Keyboard onKeyPress={handleKeyPress} />
