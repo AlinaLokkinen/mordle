@@ -7,7 +7,6 @@ import Keyboard from "./components/Keyboard";
 import Wordlist from "./components/wordlist";
 
 function App() {
-  
   const [grid, setGrid] = useState([
     ["", "", "", "", ""],
     ["", "", "", "", ""],
@@ -30,22 +29,26 @@ function App() {
 
   const [randomWord, setRandomWord] = useState();
 
+  const [outOfTriesMsg] = useState(`Out of tries! The word was`);
+  const [gameWonMsg] = useState("Word guessed!");
+  const [wordNotFoundMsg] = useState("Not in wordlist!");
+  const [gameWon, setGameWon] = useState(false);
+  const [showWordNotFoundMsg, setShowWordNotFoundMsg] = useState(false);
+
+  const [currentRow, setCurrentRow] = useState(["", "", "", "", ""]);
+  const [rowTry, setRowTry] = useState(0);
+
   useEffect(() => {
     const wordOfThePlay = Wordlist[Math.floor(Math.random() * Wordlist.length)];
     setRandomWord(wordOfThePlay.split(""));
   }, []);
 
-  const [currentRow, setCurrentRow] = useState(["", "", "", "", ""]);
-
-  // console.log("randomword", randomWord);
-  const [rowTry, setRowTry] = useState(0);
-  if (rowTry > 5) {
-    console.log("Ei enempää tyhjiä rivejä!");
-  }
-
-  console.log(randomWord);
+  const handleRefresh = () => {
+    window.location.reload(false);
+  };
 
   const handleKeyPress = (key) => {
+    setShowWordNotFoundMsg(false);
     if (key === "enter") {
       // jos jokainen solu sisältää kirjaimen, rivi on täysi
       const isNotEmpty = (value) => value !== "";
@@ -53,13 +56,18 @@ function App() {
         // tarkista onko syötetty sana sanalistassa
         if (Wordlist.includes(currentRow.join("").toLowerCase())) {
           // tarkista onko syötetty sana sama kuin randomWord
+          //
           if (currentRow.join("").toLowerCase() === randomWord.join("")) {
+            // muutetaan solut vihreiksi
             const isCorrect = ["", "", "", "", ""];
 
             for (let i = 0; i < currentRow.length; i++) {
               if (currentRow[i].toLowerCase() === randomWord[i].toLowerCase()) {
                 isCorrect[i] = "correct";
-              } else if (currentRow[i].toLowerCase() !== randomWord[i].toLowerCase() && randomWord.includes(currentRow[i].toLowerCase())) {
+              } else if (
+                currentRow[i].toLowerCase() !== randomWord[i].toLowerCase() &&
+                randomWord.includes(currentRow[i].toLowerCase())
+              ) {
                 isCorrect[i] = "present";
               } else {
                 isCorrect[i] = "not in word";
@@ -67,23 +75,23 @@ function App() {
             }
 
             const newColorGrid = [...colorGrid];
-
             newColorGrid[rowTry] = isCorrect;
-
             setColorGrid(newColorGrid);
 
-            console.log("Voitto");
+            // annetaan tieto voitosta
+            setGameWon(true);
 
             // jos ei, siirrytään seuraavalle riville ja tallennetaan syötetty sana gridiin
           } else {
-            console.log("ei voittoa, tarkista kirjainten paikat");
-
             const isCorrect = ["", "", "", "", ""];
 
             for (let i = 0; i < currentRow.length; i++) {
               if (currentRow[i].toLowerCase() === randomWord[i].toLowerCase()) {
                 isCorrect[i] = "correct";
-              } else if (currentRow[i].toLowerCase() !== randomWord[i].toLowerCase() && randomWord.includes(currentRow[i].toLowerCase())) {
+              } else if (
+                currentRow[i].toLowerCase() !== randomWord[i].toLowerCase() &&
+                randomWord.includes(currentRow[i].toLowerCase())
+              ) {
                 isCorrect[i] = "present";
               } else {
                 isCorrect[i] = "not in word";
@@ -91,15 +99,10 @@ function App() {
             }
 
             const newColorGrid = [...colorGrid];
-
             newColorGrid[rowTry] = isCorrect;
-
             setColorGrid(newColorGrid);
-
             const newGrid = [...grid];
-
             newGrid[rowTry] = currentRow;
-
             setGrid(newGrid);
 
             // siirrytään seuraavalle riville jos vielä tilaa
@@ -109,11 +112,10 @@ function App() {
             setRowTry(rows);
             const emptyRow = ["", "", "", "", ""];
             setCurrentRow(emptyRow);
-
           }
         } else {
           // kerro käyttäjälle "Not in wordlist"
-          console.log("ei löydy");
+          setShowWordNotFoundMsg(true);
         }
       }
       // jos ei, tarkista mitkä kirjaimet ovat oikein ja ovatko oikeilla vai väärillä paikoilla
@@ -143,20 +145,39 @@ function App() {
   };
 
   return (
-    <div className="bg-black py-15 grid grid-cols-1">
-      {/* <h1 className="text-white pb-10 font-bold">Mordle - mock wordle</h1> */}
+    <div className="bg-black py-10">
+      <h1 className="text-white font-bold">Mordle - mock wordle</h1>
       <MordleWrapper>
+        {gameWon && (
+          <div>
+            <p className="text-white">{gameWonMsg}</p>
+            <button className="text-white mb-3" onClick={handleRefresh}>
+              Play again
+            </button>
+          </div>
+        )}
+        {showWordNotFoundMsg && (
+          <p className="text-white pb-5">{wordNotFoundMsg}</p>
+        )}
+        {rowTry > 5 && (
+          <div>
+            <p className="text-white">{outOfTriesMsg} </p>
+            <button className="text-white mb-3" onClick={handleRefresh}>
+              Play again
+            </button>
+          </div>
+        )}
         {grid.map((row, i) => {
           return i === rowTry ? (
             <Row key={i}>
               {currentRow.map((cell, ci) => {
-                return <Cell key={ci} value={cell} color={colorGrid[i][ci]}/>;
+                return <Cell key={ci} value={cell} color={colorGrid[i][ci]} />;
               })}
             </Row>
           ) : (
             <Row key={i}>
               {row.map((cell, ci) => {
-                return <Cell key={ci} value={cell} color={colorGrid[i][ci]}/>;
+                return <Cell key={ci} value={cell} color={colorGrid[i][ci]} />;
               })}
             </Row>
           );
